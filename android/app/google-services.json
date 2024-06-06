@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "520692343980",
+    "firebase_url": "https://dmtransport-1-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "dmtransport-1",
+    "storage_bucket": "dmtransport-1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520692343980:android:e4240a65aa4eecf6caeb09",
+        "android_client_info": {
+          "package_name": "com.dmtransport.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "520692343980-kho4h5r89186ubaahgta0sqia68vr8r9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5WWrUaT4x2Zv6hoKI7k9M9z5e_DQk3wM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "520692343980-kho4h5r89186ubaahgta0sqia68vr8r9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "520692343980-5o3bmdgu1l3d05pgaptoenccdoucrj8n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dmtransport"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

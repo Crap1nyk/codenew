@@ -1,0 +1,9 @@
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icon.png"
+  min_sdk_android: 21
+# To change icon and rename app name run the following:
+## dart run flutter_launcher_icons -f .\flutter_launcher_icons.yaml
+## flutter pub global run rename --appname "Network Upp"
+
