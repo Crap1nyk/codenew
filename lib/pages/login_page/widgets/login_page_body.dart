@@ -72,6 +72,7 @@ class _BodyState extends State<Body> {
       });
     });
   }
+  
 
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -107,27 +108,44 @@ class _BodyState extends State<Body> {
               height: 64.0,
             ),
             // Text Boxes
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200]!.withOpacity(0.3),
-                borderRadius: const BorderRadius.all(Radius.circular(20.0)),
-              ),
-              child: InternationalPhoneNumberInput(
-                onInputChanged: onPhoneNumberChanged,
-                initialValue: PhoneNumber(isoCode: "IN"),
-                textFieldController: phoneNumberController,
-                countries: const ["US", "IN", "CA"],
-                inputDecoration: const InputDecoration(
-                  hintText: 'Phone Number',
-                  border: InputBorder.none,
+            // Container(
+            //   decoration: BoxDecoration(
+            //     color: Colors.grey[200]!.withOpacity(0.3),
+            //     borderRadius: const BorderRadius.all(Radius.circular(20.0)),
+            //   ),
+            //   child: InternationalPhoneNumberInput(
+            //     onInputChanged: onPhoneNumberChanged,
+            //     initialValue: PhoneNumber(isoCode: "IN"),
+            //     textFieldController: phoneNumberController,
+            //     countries: const ["US", "IN", "CA"],
+            //     inputDecoration: const InputDecoration(
+            //       hintText: 'Phone Number',
+            //       border: InputBorder.none,
+            //     ),
+            //     textStyle: const TextStyle(color: Colors.white),
+            //     selectorTextStyle: const TextStyle(
+            //       fontSize: 18.0,
+            //       fontWeight: FontWeight.w500,
+            //       color: Colors.black,
+            //     ),
+            //   ),
+            // ),
+
+            TextField(
+              obscureText: true,
+              controller: phoneNumberController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                hintText: 'Phone Number',
+                filled: true,
+                fillColor: Colors.grey[200]!.withOpacity(0.3),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                  borderSide: BorderSide.none,
                 ),
-                textStyle: const TextStyle(color: Colors.white),
-                selectorTextStyle: const TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
+                contentPadding: const EdgeInsets.only(left: 20.0),
               ),
+              style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(
               height: 16.0,

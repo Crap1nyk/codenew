@@ -1,15 +1,38 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'dart:math';
+import 'package:dmtransport/external/file_picker_handle.dart';
+import 'package:dmtransport/pages/home_page/pages/about_page/notifications_page.dart';
+import 'package:dmtransport/pages/home_page/pages/dashboard/pages/load_images_page.dart';
+import 'package:dmtransport/pages/home_page/pages/dashboard/pages/pdf_preview_page.dart';
+import 'package:dmtransport/pages/home_page/pages/dashboard/pages/trip_envolope_forms.dart';
+import 'package:dmtransport/external/fb_storage.dart';
+import 'package:dmtransport/states/app.state.dart';
+import 'package:dmtransport/utils/assets.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Firstpage(),
+    );
+  }
+}
 
 class Firstpage extends StatefulWidget {
   @override
@@ -188,6 +211,15 @@ class _FirstpageState extends State<Firstpage> {
               onPressed: removeImage,
             ),
           ),
+          Align(
+            alignment: Alignment(0.0, 0.9),
+            child: FloatingActionButton(
+              elevation: 0.0,
+              child: Icon(Icons.upload),
+              backgroundColor: Color.fromARGB(255, 197, 206, 166),
+              onPressed: generateAndUploadPDF,
+            ),
+          ),
         ],
       ),
     );
@@ -257,21 +289,16 @@ class _FirstpageState extends State<Firstpage> {
     final bytes = await imageFile.readAsBytes();
     final image = img.decodeImage(bytes)!;
 
+    final grayscaleImage = img.grayscale(image);
 
-  final grayscaleImage = img.grayscale(image);
+    final adjustedImage = img.adjustColor(
+      grayscaleImage,
+      contrast: 1.5, // Adjust this value to increase contrast (1.0 is no change)
+      brightness: 1.3, // Adjust this value to increase brightness (0.0 is no change)
+    );
 
-  final adjustedImage = img.adjustColor(
-    grayscaleImage,
-    contrast: 1.5, // Adjust this value to increase contrast (1.0 is no change)
-    brightness: 1.3, // Adjust this value to increase brightness (0.0 is no change)
-  );
-
-  // Optionally, add a slight blur to simulate printed material
- // final blurredImage = img.gaussianBlur(thresholdedImage, 1);
-
-  // Save the processed image
-  final processedImage = await _saveImage(adjustedImage);
-
+    // Save the processed image
+    final processedImage = await _saveImage(adjustedImage);
 
     setState(() {
       images[images.length - 1] = processedImage;
@@ -306,4 +333,47 @@ class _FirstpageState extends State<Firstpage> {
     await file.writeAsBytes(await pdf.save());
     await Printing.sharePdf(bytes: await pdf.save(), filename: 'document.pdf');
   }
+
+  Future<void> generateAndUploadPDF() async {
+    final pdf = pw.Document();
+    for (var image in images) {
+      final imageBytes = await image.readAsBytes();
+      final pdfImage = pw.MemoryImage(imageBytes);
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) {
+            return pw.Center(
+              child: pw.Image(pdfImage),
+            );
+          },
+        ),
+      );
+    }
+    final output = await getTemporaryDirectory();
+    final file = File('${output.path}/document.pdf');
+    await file.writeAsBytes(await pdf.save());
+    await uploadFile(file);
+  }
+
+Future<String?> uploadFile(File file) async {
+  try {
+    
+    // Get reference to the PDF file
+    String fileName = 'document_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    
+    // Upload file to Firebase Storage using FbStorage
+    var (uploadTask, uploadRef) = FbStorage.uploadDocument(file, {'fileName': fileName});
+
+    // Wait for upload to complete
+    await uploadTask;
+
+    // Get download URL
+    String downloadURL = await uploadRef.getDownloadURL();
+
+    return downloadURL;
+  } catch (e) {
+    print('Error uploading PDF: $e');
+    return null;
+  }
+}
 }
