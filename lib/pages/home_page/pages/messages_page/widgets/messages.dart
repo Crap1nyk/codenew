@@ -48,7 +48,7 @@ class Messages extends StatelessWidget {
 
               ...groupedMessages
                   .expand((messageGroup) => [
-                        // DateHeader(date: messageGroup.first.dateTime),
+                        DateHeader(date: messageGroup.first.dateTime),
                         ...messageGroup.map<Widget>((message) {
                           return message.recieved
                               ? MessageTileRecieved(message: message)
@@ -79,34 +79,46 @@ class Messages extends StatelessWidget {
   }
 }
 
-// class DateHeader extends StatelessWidget {
-//   final DateTime date;
+class DateHeader extends StatelessWidget {
+  final DateTime date;
 
-//   const DateHeader({Key? key, required this.date}) : super(key: key);
+  const DateHeader({Key? key, required this.date}) : super(key: key);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: Container(
-//         margin: const EdgeInsets.symmetric(vertical: 8),
-//         padding: const EdgeInsets.all(8),
-//         decoration: BoxDecoration(
-//           color: Colors.grey.shade300,
-//           borderRadius: BorderRadius.circular(8),
-//         ),
-//         child: Text(
-//           formatDate(date),
-//           style: Theme.of(context).textTheme.bodySmall,
-//         ),
-//       ),
-//     );
-//   }
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          formatDate(date),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ),
+    );
+  }
 
-//   String formatDate(DateTime date) {
-//     // Implement your date formatting logic here
-//     return '${date.day}/${date.month}/${date.year}';
-//   }
-// }
+  String formatDate(DateTime date) {
+    DateTime now = DateTime.now();
+    DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
+
+    if (date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day) {
+      return 'Today';
+    } else if (date.year == yesterday.year &&
+        date.month == yesterday.month &&
+        date.day == yesterday.day) {
+      return 'Yesterday';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
+  }
+}
 
 class MessageTileRecieved extends StatelessWidget {
   const MessageTileRecieved({

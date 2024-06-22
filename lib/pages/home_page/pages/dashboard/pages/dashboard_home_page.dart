@@ -5,12 +5,12 @@ import 'package:dmtransport/pages/home_page/pages/about_page/notifications_page.
 import 'package:dmtransport/pages/home_page/pages/dashboard/pages/load_images_page.dart';
 import 'package:dmtransport/pages/home_page/pages/dashboard/pages/pdf_preview_page.dart';
 import 'package:dmtransport/pages/home_page/pages/dashboard/pages/trip_envolope_forms.dart';
-import 'package:dmtransport/pages/home_page/pages/firstpage.dart';
 import 'package:dmtransport/states/app.state.dart';
 import 'package:dmtransport/utils/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../firstpage.dart';
 import '../dashboard_router.dart';
 import '../models/dashboard_item.dart';
 import 'package:document_scanner/document_scanner.dart';
@@ -88,7 +88,11 @@ class _DashboardHomePageState extends State<DashboardHomePage> {
 
   void _onScanDocumentsPressed(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return Firstpage();
+      return const Firstpage();
+      // DocumentScanner(onScanDone: (file) {
+      //   Navigator.popAndPushNamed(context, PdfPreviewPage.route,
+      //       arguments: PdfPreviewPageArgs(file: file));
+      // });
     }));
   }
 

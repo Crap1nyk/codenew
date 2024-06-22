@@ -5,7 +5,7 @@ import 'package:dmtransport/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class AppStateNotifier with ChangeNotifier {
-  User user = const User("none", "none", "none", "country", "image");
+  User user = const User("none", "none", "none", "country", "image" ,"category");
   String loginToken = "";
 
   List<NotificationModel> notifications = [];

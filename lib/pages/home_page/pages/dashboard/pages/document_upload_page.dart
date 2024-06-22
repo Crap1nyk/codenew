@@ -82,6 +82,7 @@ class _DocUploadPageBodyState extends State<DocUploadPageBody> {
         _documentUploadPageData.documentType,
         _textEditingController.text,
         appState.user.email,
+        appState.user.category,
         appState.loginToken,
       ).then((value) {
         DocumentScanner.clearScan();

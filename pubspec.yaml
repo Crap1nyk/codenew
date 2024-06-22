@@ -3,7 +3,7 @@ description: Connects drivers to DM Transport admin.
 
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.8+10
+version: 1.0.11+15
 
 environment:
   sdk: ">=3.0.6 <4.0.0"
@@ -38,7 +38,7 @@ dependencies:
   table_calendar: ^3.0.9
   url_launcher: ^6.1.12
   uuid: ^3.0.7
-  camera: ^0.10.5+9
+  camera: ^0.11.0+1
   permission_handler: ^11.3.0
   flutter_image_filters: ^0.0.17
   image_cropper: ^1.5.1

@@ -299,10 +299,6 @@ class _DmtFormPageState extends State<DmtFormPage> {
                       Expanded(
                         child: TextFormField(
                           controller: formController.driverName2Controller,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return "Can't be empty";
-                            return null;
-                          },
                           decoration: const InputDecoration(
                               label: Text("Driver Name 2")),
                         ),
@@ -475,7 +471,7 @@ class _DmtFormPageState extends State<DmtFormPage> {
 }
 
 class FuelLocationDetails extends StatelessWidget {
-  FuelLocationDetails({
+  const FuelLocationDetails({
     super.key,
     required this.isDeleteable,
     this.onDelete,
@@ -584,7 +580,7 @@ class FuelLocationDetails extends StatelessWidget {
 }
 
 class TrailerDetails extends StatefulWidget {
-  TrailerDetails({
+  const TrailerDetails({
     super.key,
     required this.isDeleteable,
     this.onDelete,

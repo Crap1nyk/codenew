@@ -6,14 +6,11 @@ class User {
   final String phone;
   final String country;
   final String image;
+  final String category;
 
-  const User(
-    this.name,
-    this.email,
-    this.phone,
-    this.country,
-    this.image,
-  );
+  const User(this.name, this.email, this.phone, this.country, this.image,
+      this.category
+      );
 
   User fromRawJson(String json) {
     return User.fromJson(jsonDecode(json));
@@ -26,6 +23,7 @@ class User {
       data["phone"],
       data["country"],
       data["image"],
+      data["category"] ?? "NA" ,
     );
   }
 }

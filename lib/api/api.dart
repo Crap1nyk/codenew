@@ -4,7 +4,7 @@ import 'package:dmtransport/api/types.dart';
 import 'package:dmtransport/models/document.model.dart';
 import 'package:dmtransport/models/notification.model.dart';
 import 'package:dmtransport/models/user.model.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
+// import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:http/http.dart' as http;
 
 class Api {
@@ -23,12 +23,11 @@ class Api {
 
     // decoding respponse
     var body = jsonDecode(response.body);
-
-    log('Body: $body');
-
+ log('Body: $body');
     if (response.statusCode == 200) {
       String token = body["token"] as String;
       var userData = body["user"];
+       log('Body: $userData');
 
       return LoginResponse(User.fromJson(userData), token);
     } else {
@@ -45,10 +44,12 @@ class Api {
     String docType,
     String note,
     String driverEmail, // Add driver email parameter
+    String category,
     String bearer,
   ) async {
     String path = "/api/user/uploadDocument";
-
+    log(category);
+    log(driverName);
     // making request
     var url = Uri.https(baseUrl, path);
 
@@ -60,14 +61,16 @@ class Api {
       "type": docType,
       "note": note,
       "driver_email": driverEmail, // Include driver email in the request body
+      "category": category,
     };
 
-    String _t = await FirebaseAppCheck.instance.getToken() ?? '';
-
+    // String _t = await FirebaseAppCheck.instance.getToken() ?? '';
     var response = await http.post(
       url,
       body: reqBody,
-      headers: {"Authorization": "Bearer $bearer", 'X-Firebase-AppCheck': _t},
+      headers: {
+        "Authorization": "Bearer $bearer",
+      },
     );
 
     // decoding response
@@ -119,12 +122,14 @@ class Api {
 
   static Future<User?> isLoginTokenValid(String token) async {
     String path = "/api/user/checkToken";
-    log('token: $token');
+    // log('token: $token');
     var url = Uri.https(baseUrl, path);
-    String _t = await FirebaseAppCheck.instance.getToken() ?? '';
+    // String _t = await FirebaseAppCheck.instance.getToken() ?? '';
     var response = await http.get(
       url,
-      headers: {"Authorization": "Bearer $token", 'X-Firebase-AppCheck': _t},
+      headers: {
+        "Authorization": "Bearer $token",
+      },
     );
 
     // decoding response

@@ -26,7 +26,7 @@ class _DcocumentTypeSelectorPageState extends State<DcocumentTypeSelectorPage> {
         file,
         Data.documentTypeIds[Data.documentTypeNames[selectedInd]]!,
       ),
-    );
+  );
   }
 
   int selectedInd = -1;

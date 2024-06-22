@@ -508,7 +508,7 @@ class _DmtWSFormState extends State<DmtWSForm> {
 }
 
 class FuelLocationDetails extends StatefulWidget {
-  FuelLocationDetails({
+  const FuelLocationDetails({
     super.key,
     required this.isDeleteable,
     this.onDelete,

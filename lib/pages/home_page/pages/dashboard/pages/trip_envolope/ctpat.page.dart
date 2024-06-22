@@ -151,7 +151,7 @@ class _CtpatFormState extends State<CtpatForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                YesNoRadioField(
+                const YesNoRadioField(
                   sharedPreferencesKey: 'radioInspection',
                   label: "Inspection Complete",
                 ),
@@ -214,14 +214,14 @@ class _CtpatFormState extends State<CtpatForm> {
                 const SizedBox(
                   height: 8,
                 ),
-                YesNoRadioField(
+                const YesNoRadioField(
                   sharedPreferencesKey: 'radiosealnumber',
                   label: "Viewd Trailer Loading",
                 ),
                 const SizedBox(
                   height: 8,
                 ),
-                YesNoRadioField(
+                const YesNoRadioField(
                   sharedPreferencesKey: 'radiobillload',
                   label: "BOL Load and Piece Count Verified",
                 ),
@@ -255,7 +255,7 @@ class _CtpatFormState extends State<CtpatForm> {
                 const SizedBox(
                   height: 8,
                 ),
-                YesNoRadioField(
+                const YesNoRadioField(
                   sharedPreferencesKey: 'radiosealintact',
                   label: "Seal Intact",
                 ),
@@ -277,14 +277,14 @@ class _CtpatFormState extends State<CtpatForm> {
                 const SizedBox(
                   height: 8,
                 ),
-                YesNoRadioField(
+                const YesNoRadioField(
                   sharedPreferencesKey: 'radiosealnumber',
                   label: "Seal Number and Location Same as BOL",
                 ),
                 const SizedBox(
                   height: 8,
                 ),
-                YesNoRadioField(
+                const YesNoRadioField(
                   sharedPreferencesKey: 'radiosealchange',
                   label: "Seal Change Reported to Dispatch",
                 ),
@@ -310,7 +310,7 @@ class _CtpatFormState extends State<CtpatForm> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text("Location Type"),
-                    SizedBox(
+                    const SizedBox(
                       width: 55,
                     ),
                     Expanded(
