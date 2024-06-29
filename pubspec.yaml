@@ -33,7 +33,7 @@ dependencies:
   pdf: ^3.10.4
   provider: ^6.0.5
   screenshot: ^2.1.0
-  shared_preferences: ^2.2.1
+  shared_preferences: ^2.2.3
   syncfusion_flutter_pdfviewer: ^22.2.12
   table_calendar: ^3.0.9
   url_launcher: ^6.1.12

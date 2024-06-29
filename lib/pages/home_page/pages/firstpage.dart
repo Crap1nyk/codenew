@@ -1,15 +1,13 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:camera/camera.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'package:image/image.dart' as img;
 import '../../../utils/data.dart';
 import 'dashboard/dashboard_router.dart';
 import 'dashboard/models/document_upload_page_data.dart';
@@ -27,17 +25,20 @@ class Firstpage extends StatefulWidget {
 class _FirstpageState extends State<Firstpage> {
   final picker = ImagePicker();
   List<File> images = [];
+  List<File> savedImages = [];
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
   bool _flashOn = false;
   bool filterApplied = false;
   File? originalImg;
   bool isLoading = false;
+  bool showSavedImagesGrid = false;
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
+    loadSavedImages();
   }
 
   Future<void> _initializeCamera() async {
@@ -60,7 +61,28 @@ class _FirstpageState extends State<Firstpage> {
     super.dispose();
   }
 
-  static const route = "${DashboardRouter.baseRoute}/pdf_preview";
+   static const route = "${DashboardRouter.baseRoute}/pdf_preview";
+
+  Future<void> loadSavedImages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String>? imagePaths = prefs.getStringList('saved_images');
+    if (imagePaths != null) {
+      setState(() {
+        savedImages = imagePaths.map((path) => File(path)).toList();
+      });
+    }
+  }
+
+  Future<void> saveImagesToPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> imagePaths = images.map((file) => file.path).toList();
+    prefs.setStringList('saved_images', imagePaths);
+  }
+
+  Future<void> clearImagesFromPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('saved_images');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,127 +117,159 @@ class _FirstpageState extends State<Firstpage> {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          if (images.isNotEmpty) {
-            final File? generatedPDF = await generatePDF();
-            if (generatedPDF != null) {
-              Navigator.pushNamed(
-                context,
-                PdfPreviewPage.route,
-                arguments: PdfPreviewPageArgs(file: generatedPDF),
-              );
-            } else {
-              print('No PDF generated');
-            }
-          }
-        },
-        backgroundColor: const Color.fromARGB(255, 197, 206, 166),
-        child: const Icon(Icons.upload_file),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'open_grid',
+            onPressed: () {
+              setState(() {
+                showSavedImagesGrid = !showSavedImagesGrid;
+              });
+            },
+            backgroundColor: const Color.fromARGB(255, 197, 206, 166),
+            child: const Icon(Icons.grid_view, color: Colors.black),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton(
+            heroTag: 'upload_file',
+            onPressed: () async {
+              if (images.isNotEmpty) {
+                final File? generatedPDF = await generatePDF();
+                if (generatedPDF != null) {
+                  // Navigator.pushNamed(context, PdfPreviewPage.route, arguments: PdfPreviewPageArgs(file: generatedPDF));
+                  // Assuming you have a PdfPreviewPage, uncomment the above line and import the necessary files.
+                  print('PDF generated');
+                } else {
+                  print('No PDF generated');
+                }
+              }
+            },
+            backgroundColor: const Color.fromARGB(255, 197, 206, 166),
+            child: const Icon(Icons.upload_file, color: Colors.black),
+          ),
+        ],
       ),
       body: Stack(
         children: [
-          if (images.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 20),
-                    Text(
-                      'Select Image From Camera or Gallery',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 6, 6, 6),
-                        fontSize: 20,
-                      ),
-                    ),
-                    Text(
-                      'Press remove once to remove filter, twice to delete image.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 6, 6, 6),
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
-                ),
+          if (showSavedImagesGrid)
+            GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
               ),
-            )
-          else
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: images.length,
-              itemBuilder: (BuildContext context, index) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: Stack(
-                    children: [
-                      if (isLoading && index + 1 == images.length)
-                        SizedBox(
-                          width: MediaQuery.sizeOf(context).width,
-                          height: MediaQuery.sizeOf(context).height * 0.5,
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      else
-                        Image.file(images[index]),
-                      if (index + 1 == images.length)
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: filterApplied
-                              ? Row(
-                                  children: [
-                                    FloatingActionButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          images[index] = originalImg!;
-                                          filterApplied = false;
-                                        });
-                                      },
-                                      tooltip: 'Remove Filter',
-                                      child: const Icon(Icons.replay_rounded),
-                                    ),
-                                    const SizedBox(width: 20),
-                                    FloatingActionButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          filterApplied = false;
-                                        });
-                                      },
-                                      tooltip: 'Save',
-                                      child: const Icon(Icons.done_rounded),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  children: [
-                                    FloatingActionButton(
-                                      onPressed: () async {
-                                        setState(() => isLoading = true);
-                                        await applyEcoFilter(images.last);
-                                        setState(() => isLoading = false);
-                                      },
-                                      tooltip: 'Apply Eco Filter',
-                                      child: const Icon(Icons.filter),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                    ],
-                  ),
+              itemCount: savedImages.length,
+              itemBuilder: (BuildContext context, int index) {
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      showSavedImagesGrid = false;
+                    });
+                  },
+                  child: Image.file(savedImages[index], fit: BoxFit.cover),
                 );
               },
-            ),
+            )
+          else
+            images.isEmpty
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 20),
+                          Text(
+                            'Select Image From Camera or Gallery',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 6, 6, 6),
+                              fontSize: 20,
+                            ),
+                          ),
+                          Text(
+                            'Press remove once to remove filter, twice to delete image.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 6, 6, 6),
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: images.length,
+                    itemBuilder: (BuildContext context, index) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: Stack(
+                          children: [
+                            if (isLoading && index + 1 == images.length)
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height * 0.5,
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                            else
+                              Image.file(images[index]),
+                            if (index + 1 == images.length)
+                              Positioned(
+                                top: 10,
+                                right: 10,
+                                child: filterApplied
+                                    ? Row(
+                                        children: [
+                                          FloatingActionButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                images[index] = originalImg!;
+                                                filterApplied = false;
+                                              });
+                                            },
+                                            tooltip: 'Remove Filter',
+                                            child: const Icon(Icons.replay_rounded),
+                                          ),
+                                          const SizedBox(width: 20),
+                                          FloatingActionButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                filterApplied = false;
+                                              });
+                                            },
+                                            tooltip: 'Save',
+                                            child: const Icon(Icons.done_rounded),
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        children: [
+                                          FloatingActionButton(
+                                            onPressed: () async {
+                                              setState(() => isLoading = true);
+                                              await applyEcoFilter(images.last);
+                                              setState(() => isLoading = false);
+                                            },
+                                            tooltip: 'Apply Eco Filter',
+                                            child: const Icon(Icons.filter),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
           Align(
-            alignment: Alignment(-0.7, 0.7),
+            alignment: const Alignment(-0.7, 0.7),
             child: FloatingActionButton(
               elevation: 0.0,
-              child: Icon(Icons.image),
-              backgroundColor: Color.fromARGB(255, 197, 206, 166),
+              child: const Icon(Icons.image),
+              backgroundColor: const Color.fromARGB(255, 197, 206, 166),
               onPressed: getImageFromGallery,
             ),
           ),
@@ -223,7 +277,7 @@ class _FirstpageState extends State<Firstpage> {
             alignment: const Alignment(0.7, 0.7),
             child: FloatingActionButton(
               elevation: 0.0,
-              child: Icon(Icons.camera),
+              child: const Icon(Icons.camera),
               backgroundColor: const Color.fromARGB(255, 197, 206, 166),
               onPressed: getImageFromCamera,
             ),
@@ -232,9 +286,12 @@ class _FirstpageState extends State<Firstpage> {
             alignment: const Alignment(0.0, 0.7),
             child: FloatingActionButton(
               elevation: 0.0,
-              child: Icon(Icons.delete),
+              child: const Icon(Icons.delete),
               backgroundColor: const Color.fromARGB(255, 197, 206, 166),
-              onPressed: removeImage,
+              onPressed: () {
+                removeImage();
+                saveImagesToPreferences();
+              },
             ),
           ),
         ],
@@ -248,24 +305,25 @@ class _FirstpageState extends State<Firstpage> {
       final croppedFile = await cropCustomImg(pickedFile);
       if (croppedFile != null) {
         setState(() {
-          images = [File(croppedFile.path)];
+          images.add(croppedFile);
+          originalImg = croppedFile;
         });
+        saveImagesToPreferences();
       }
-    } else {
-      print('No image selected');
     }
   }
 
   Future<void> getImageFromCamera() async {
     try {
-      await _initializeControllerFuture;
-      final pickedFile = await picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        final croppedFile = await cropCustomImg(pickedFile);
+      final image = await picker.pickImage(source: ImageSource.camera);
+      if (image != null) {
+        final croppedFile = await cropCustomImg(image);
         if (croppedFile != null) {
           setState(() {
-            images = [File(croppedFile.path)];
+            images.add(croppedFile);
+            originalImg = croppedFile;
           });
+          saveImagesToPreferences();
         }
       } else {
         print('No image selected');
@@ -284,6 +342,7 @@ class _FirstpageState extends State<Firstpage> {
         print('No image to remove');
       }
     });
+    saveImagesToPreferences();
   }
 
   Future<File?> cropCustomImg(XFile img) async {
@@ -386,7 +445,7 @@ class _FirstpageState extends State<Firstpage> {
       await file.writeAsBytes(await pdf.save());
 
       await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdf.save(),
+        onLayout: (format) async => pdf.save(),
       );
     } else {
       print('No images to generate PDF');
