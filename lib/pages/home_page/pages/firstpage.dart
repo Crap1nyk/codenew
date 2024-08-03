@@ -42,17 +42,21 @@ class _FirstpageState extends State<Firstpage> {
   }
 
   Future<void> _initializeCamera() async {
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
+    try {
+      final cameras = await availableCameras();
+      final firstCamera = cameras.first;
 
-    _controller = CameraController(
-      firstCamera,
-      ResolutionPreset.medium,
-      enableAudio: false,
-    );
+      _controller = CameraController(
+        firstCamera,
+        ResolutionPreset.medium,
+        enableAudio: false,
+      );
 
-    _initializeControllerFuture = _controller.initialize();
-    setState(() {});
+      _initializeControllerFuture = _controller.initialize();
+      setState(() {});
+    } catch (e) {
+      print('Error initializing camera: $e');
+    }
   }
 
   @override
@@ -61,7 +65,7 @@ class _FirstpageState extends State<Firstpage> {
     super.dispose();
   }
 
-   static const route = "${DashboardRouter.baseRoute}/pdf_preview";
+  static const route = "${DashboardRouter.baseRoute}/pdf_preview";
 
   Future<void> loadSavedImages() async {
     final prefs = await SharedPreferences.getInstance();
@@ -86,6 +90,7 @@ class _FirstpageState extends State<Firstpage> {
 
   @override
   Widget build(BuildContext context) {
+    final allImages = [...images, ...savedImages];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scanner'),
@@ -119,34 +124,69 @@ class _FirstpageState extends State<Firstpage> {
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          FloatingActionButton(
-            heroTag: 'open_grid',
-            onPressed: () {
-              setState(() {
-                showSavedImagesGrid = !showSavedImagesGrid;
-              });
-            },
-            backgroundColor: const Color.fromARGB(255, 197, 206, 166),
-            child: const Icon(Icons.grid_view, color: Colors.black),
+          Column(
+            children: [
+              FloatingActionButton(
+                heroTag: 'gallery',
+                elevation: 0.0,
+                child: const Icon(Icons.image),
+                backgroundColor: const Color.fromARGB(255, 197, 206, 166),
+                onPressed: getImageFromGallery,
+              ),
+              const SizedBox(height: 10),
+              FloatingActionButton(
+                heroTag: 'camera',
+                elevation: 0.0,
+                child: const Icon(Icons.camera),
+                backgroundColor: const Color.fromARGB(255, 197, 206, 166),
+                onPressed: getImageFromCamera,
+              ),
+              const SizedBox(height: 10),
+              FloatingActionButton(
+                heroTag: 'delete',
+                elevation: 0.0,
+                child: const Icon(Icons.delete),
+                backgroundColor: const Color.fromARGB(255, 197, 206, 166),
+                onPressed: () {
+                  removeImage();
+                  saveImagesToPreferences();
+                },
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: 'upload_file',
-            onPressed: () async {
-              if (images.isNotEmpty) {
-                final File? generatedPDF = await generatePDF();
-                if (generatedPDF != null) {
-                  // Navigator.pushNamed(context, PdfPreviewPage.route, arguments: PdfPreviewPageArgs(file: generatedPDF));
-                  // Assuming you have a PdfPreviewPage, uncomment the above line and import the necessary files.
-                  print('PDF generated');
-                } else {
-                  print('No PDF generated');
-                }
-              }
-            },
-            backgroundColor: const Color.fromARGB(255, 197, 206, 166),
-            child: const Icon(Icons.upload_file, color: Colors.black),
+          const SizedBox(height: 20),
+          Column(
+            children: [
+              FloatingActionButton(
+                heroTag: 'upload_file',
+                onPressed: () async {
+                  if (images.isNotEmpty) {
+                    final File? generatedPDF = await generatePDF();
+                    if (generatedPDF != null) {
+                      Navigator.pushNamed(context, PdfPreviewPage.route, arguments: PdfPreviewPageArgs(file: generatedPDF));
+                      print('PDF generated');
+                    } else {
+                      print('No PDF generated');
+                    }
+                  }
+                },
+                backgroundColor: const Color.fromARGB(255, 197, 206, 166),
+                child: const Icon(Icons.upload_file, color: Colors.black),
+              ),
+              const SizedBox(height: 10),
+              FloatingActionButton(
+                heroTag: 'open_grid',
+                onPressed: () {
+                  setState(() {
+                    showSavedImagesGrid = !showSavedImagesGrid;
+                  });
+                },
+                backgroundColor: const Color.fromARGB(255, 197, 206, 166),
+                child: const Icon(Icons.grid_view, color: Colors.black),
+              ),
+            ],
           ),
         ],
       ),
@@ -157,7 +197,7 @@ class _FirstpageState extends State<Firstpage> {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
               ),
-              itemCount: savedImages.length,
+              itemCount: allImages.length,
               itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
                   onTap: () {
@@ -165,7 +205,7 @@ class _FirstpageState extends State<Firstpage> {
                       showSavedImagesGrid = false;
                     });
                   },
-                  child: Image.file(savedImages[index], fit: BoxFit.cover),
+                  child: Image.file(allImages[index], fit: BoxFit.cover),
                 );
               },
             )
@@ -264,36 +304,6 @@ class _FirstpageState extends State<Firstpage> {
                       );
                     },
                   ),
-          Align(
-            alignment: const Alignment(-0.7, 0.7),
-            child: FloatingActionButton(
-              elevation: 0.0,
-              child: const Icon(Icons.image),
-              backgroundColor: const Color.fromARGB(255, 197, 206, 166),
-              onPressed: getImageFromGallery,
-            ),
-          ),
-          Align(
-            alignment: const Alignment(0.7, 0.7),
-            child: FloatingActionButton(
-              elevation: 0.0,
-              child: const Icon(Icons.camera),
-              backgroundColor: const Color.fromARGB(255, 197, 206, 166),
-              onPressed: getImageFromCamera,
-            ),
-          ),
-          Align(
-            alignment: const Alignment(0.0, 0.7),
-            child: FloatingActionButton(
-              elevation: 0.0,
-              child: const Icon(Icons.delete),
-              backgroundColor: const Color.fromARGB(255, 197, 206, 166),
-              onPressed: () {
-                removeImage();
-                saveImagesToPreferences();
-              },
-            ),
-          ),
         ],
       ),
     );
@@ -315,18 +325,16 @@ class _FirstpageState extends State<Firstpage> {
 
   Future<void> getImageFromCamera() async {
     try {
-      final image = await picker.pickImage(source: ImageSource.camera);
-      if (image != null) {
-        final croppedFile = await cropCustomImg(image);
-        if (croppedFile != null) {
-          setState(() {
-            images.add(croppedFile);
-            originalImg = croppedFile;
-          });
-          saveImagesToPreferences();
-        }
-      } else {
-        print('No image selected');
+      await _initializeControllerFuture;
+
+      final image = await _controller.takePicture();
+      final croppedFile = await cropCustomImg(image);
+      if (croppedFile != null) {
+        setState(() {
+          images.add(croppedFile);
+          originalImg = croppedFile;
+        });
+        saveImagesToPreferences();
       }
     } catch (e) {
       print('Error capturing image: $e');

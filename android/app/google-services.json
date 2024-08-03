@@ -1,41 +1,48 @@
 {
   "project_info": {
-    "project_number": "520692343980",
-    "firebase_url": "https://dmtransport-1-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "project_id": "dmtransport-1",
-    "storage_bucket": "dmtransport-1.appspot.com"
+    "project_number": "979292982169",
+    "project_id": "dmtransport-33661",
+    "storage_bucket": "dmtransport-33661.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:520692343980:android:e4240a65aa4eecf6caeb09",
+        "mobilesdk_app_id": "1:979292982169:android:07bb9baa0afb6182446108",
         "android_client_info": {
-          "package_name": "com.dmtransport.app"
+          "package_name": "com.dmtransport.driver"
         }
       },
       "oauth_client": [
         {
-          "client_id": "520692343980-kho4h5r89186ubaahgta0sqia68vr8r9.apps.googleusercontent.com",
+          "client_id": "979292982169-icjg2v7dac8irs06tgrgbkbmciqlfiag.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dmtransport.driver",
+            "certificate_hash": "6643bd58a3899b65e470a119249f0c403a8b7bc1"
+          }
+        },
+        {
+          "client_id": "979292982169-7hjn4ohk5k1ib6eulkkug0h31ng72t3q.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD5WWrUaT4x2Zv6hoKI7k9M9z5e_DQk3wM"
+          "current_key": "AIzaSyA3bBj2Pmv4aElwyTLmb94Rn__c5LCh6xI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "520692343980-kho4h5r89186ubaahgta0sqia68vr8r9.apps.googleusercontent.com",
+              "client_id": "979292982169-7hjn4ohk5k1ib6eulkkug0h31ng72t3q.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "520692343980-5o3bmdgu1l3d05pgaptoenccdoucrj8n.apps.googleusercontent.com",
+              "client_id": "979292982169-fjb5vgvne75r6e4nmo3uj7qeogu1fcvq.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.dmtransport"
+                "bundle_id": "com.dmtransport.driver"
               }
             }
           ]
